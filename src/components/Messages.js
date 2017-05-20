@@ -115,7 +115,7 @@ class Messages extends React.Component {
             style={{
               bottom: '50px',
               left: 0,
-              overflow: 'scroll',
+              overflowY: 'scroll',
               position: 'absolute',
               right: 0,
               top: '69px'
@@ -138,6 +138,7 @@ class Messages extends React.Component {
                         edge.node.author && edge.node.author.picture
                           ? (
                             <img
+                              alt=''
                               src={edge.node.author.picture}
                               style={{
                                 borderRadius: '15px',
@@ -256,7 +257,9 @@ class Messages extends React.Component {
       variables: {
         subscriptionFilter: {
           channelId: {
-            eq: this.props.params ? this.props.params.channelId : null
+            eq: this.props.match.params
+              ? this.props.match.params.channelId
+              : null
           }
         }
       },
@@ -281,7 +284,9 @@ class Messages extends React.Component {
 const MessagesWithData = compose(
   graphql(ChannelMessagesQuery, {
     options: (props) => {
-      const channelId = props.params ? props.params.channelId : null
+      const channelId = props.match.params
+        ? props.match.params.channelId
+        : null
       return {
         variables: {
           channelId,

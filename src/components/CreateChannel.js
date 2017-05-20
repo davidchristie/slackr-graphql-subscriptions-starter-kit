@@ -2,7 +2,6 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import gql from 'graphql-tag'
 import React from 'react'
 import { graphql } from 'react-apollo'
-import { browserHistory } from 'react-router'
 
 const CreateChannelQuery = gql`
 mutation CreateChannel($channel: CreateChannelInput!) {
@@ -40,7 +39,7 @@ class CreateChannel extends React.Component {
           isPublic: false
         }
       })
-      browserHistory.push(`/channels/${changedChannel.id}`)
+      this.context.history.push(`/channels/${changedChannel.id}`)
     })
   }
 

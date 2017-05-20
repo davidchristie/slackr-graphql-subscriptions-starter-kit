@@ -1,10 +1,10 @@
 import React from 'react'
 import { ApolloProvider } from 'react-apollo'
 import { render } from 'react-dom'
-import { browserHistory, Route, Router } from 'react-router'
+import { Route, BrowserRouter as Router } from 'react-router-dom'
 
-import App from './components/App'
 import CreateChannel from './components/CreateChannel'
+import Layout from './components/Layout'
 import Login from './components/Login'
 import Messages from './components/Messages'
 import config from './config'
@@ -14,12 +14,12 @@ const client = makeApolloClient(config.scapholdUrl)
 
 const root = (
   <ApolloProvider client={client}>
-    <Router history={browserHistory}>
-      <Route path='/' component={App}>
-        <Route path='login' component={Login} />
-        <Route path='createChannel' component={CreateChannel} />
-        <Route path='/channels/:channelId' component={Messages} />
-      </Route>
+    <Router>
+      <Layout>
+        <Route component={CreateChannel} path='/createChannel' />
+        <Route component={Messages} path='/channels/:channelId' />
+        <Route component={Login} path='/login' />
+      </Layout>
     </Router>
   </ApolloProvider>
 )

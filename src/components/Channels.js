@@ -1,8 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 import gql from 'graphql-tag'
 import React from 'react'
-import { Link } from 'react-router'
 import { compose, graphql } from 'react-apollo'
+import { Link } from 'react-router-dom'
 
 import config from '../config'
 import AuthService from '../utilities/auth'
@@ -132,9 +132,14 @@ class Channels extends React.Component {
           Channels
           <a href='https://scaphold.io'>
             <img
-              style={{ float: 'right', width: '30px', height: '30px' }}
-              target='_blank'
+              alt=''
               src='https://scaphold.io/5d9897e87a7c597b0589f95cde19ad9d.png'
+              style={{
+                height: '30px',
+                float: 'right',
+                width: '30px'
+              }}
+              target='_blank'
             />
           </a>
         </h3>
@@ -167,12 +172,25 @@ class Channels extends React.Component {
             )
             : null
         }
-        <Link to='/createChannel' style={{ color: 'white' }}>Create channel</Link>
+        <Link
+          style={{
+            color: 'white'
+          }}
+          to='/createChannel'
+        >
+          Create channel
+        </Link>
         {
           !this.auth.loggedIn()
             ? (
               <div style={{position: 'absolute', bottom: 0, left: 0, right: 0, padding: '15px', textAlign: 'center'}}>
-                <Link onClick={this.startLogin} style={{ color: 'white' }}>Login</Link>
+                <button
+                  className='btn btn-primary'
+                  onClick={this.startLogin}
+                  type='button'
+                >
+                  Login
+                </button>
               </div>
             )
             : (
@@ -184,12 +202,27 @@ class Channels extends React.Component {
                   profile
                     ? (
                       <div>
-                        <img src={profile.picture} style={{marginBottom: '5px', width: '40px', height: '40px', borderRadius: '20px'}} />
+                        <img
+                          alt=''
+                          src={profile.picture}
+                          style={{
+                            borderRadius: '20px',
+                            height: '40px',
+                            marginBottom: '5px',
+                            width: '40px'
+                          }}
+                        />
                       </div>
                     )
                     : null
                 }
-                <div onClick={this.logout}>Logout</div>
+                <button
+                  className='btn btn-secondary'
+                  onClick={this.logout}
+                  type='button'
+                >
+                  Logout
+                </button>
               </div>
             )
         }

@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 import gql from 'graphql-tag'
 import React from 'react'
-import { graphql, compose } from 'react-apollo'
+import { compose, graphql } from 'react-apollo'
 
 const CreateUserQuery = gql`
 mutation CreateUser($user: CreateUserInput!) {

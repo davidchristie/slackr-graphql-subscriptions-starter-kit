@@ -7,9 +7,9 @@ const CreateChannelQuery = gql`
 mutation CreateChannel($channel: CreateChannelInput!) {
   createChannel(input: $channel) {
     changedChannel {
+      createdAt
       id
       name
-      createdAt
     }
   }
 }

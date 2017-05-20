@@ -1,28 +1,30 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 import gql from 'graphql-tag'
 import React from 'react'
-import { graphql, compose } from 'react-apollo'
+import { compose, graphql } from 'react-apollo'
+
+import Message from './Message'
 
 const ChannelMessagesQuery = gql`
 query GetPublicChannels($channelId: ID!, $messageOrder: [MessageOrderByArgs]) {
   getChannel(id: $channelId) {
     id
-    name
     messages(last: 50, orderBy: $messageOrder) {
       edges {
         node {
-          id
-          content
-          createdAt
           author {
             id
             username
             nickname
             picture
           }
+          content
+          createdAt
+          id
         }
       }
     }
+    name
   }
 }
 `
@@ -49,8 +51,8 @@ query LoggedInUser {
   viewer {
     user {
       id
-      username
       nickname
+      username
     }
   }
 }
@@ -127,71 +129,9 @@ class Messages extends React.Component {
               }}
             >
               {
-                this.props.data.getChannel.messages.edges.map((edge, i) => (
-                  <li key={i}>
-                    <div
-                      style={{
-                        padding: '5px'
-                      }}
-                    >
-                      {
-                        edge.node.author && edge.node.author.picture
-                          ? (
-                            <img
-                              alt=''
-                              src={edge.node.author.picture}
-                              style={{
-                                borderRadius: '15px',
-                                float: 'left',
-                                height: '30px',
-                                marginLeft: '-36px',
-                                marginTop: '10px',
-                                width: '30px'
-                              }}
-                            />
-                          )
-                          : null
-                      }
-                      <div
-                        style={{
-                          display: 'inline'
-                        }}
-                      >
-                        <div>
-                          {
-                            <h6
-                              style={{
-                                display: 'inline',
-                                marginRight: '10px'
-                              }}
-                            >
-                              {
-                                edge.node.author
-                                  ? (
-                                    edge.node.author.nickname ||
-                                    edge.node.author.username
-                                  )
-                                  : 'Anonymous'
-                              }
-                            </h6>
-                          }
-                          {
-                            <span className='text-muted'>
-                              {
-                                new Date(edge.node.createdAt)
-                                  .toISOString()
-                                  .substr(11, 5)
-                              }
-                            </span>
-                          }
-                        </div>
-                        <div>
-                          {edge.node.content}
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                ))
+                this.props.data.getChannel.messages.edges.map(
+                  (edge, index) => <Message key={index} {...edge.node} />
+                )
               }
             </ul>
           </div>
@@ -207,7 +147,13 @@ class Messages extends React.Component {
               <div className='input-group'>
                 <input value={this.state.newMessage} onChange={this.onNewMessageChange} type='textarea' placeholder={`Message ${this.props.data.getChannel.name}`} className='form-control' />
                 <span className='input-group-btn'>
-                  <button className='btn btn-info' type='submit' onClick={this.submitMessage}>Send!</button>
+                  <button
+                    className='btn btn-info'
+                    onClick={this.submitMessage}
+                    type='submit'
+                  >
+                      Send!
+                  </button>
                 </span>
               </div>
             </form>
@@ -223,9 +169,11 @@ class Messages extends React.Component {
     }
     const that = this
     this.props.createMessage({
-      content: this.state.newMessage,
+      authorId: this.props.loggedInUser
+        ? this.props.loggedInUser.id
+        : undefined,
       channelId: this.props.data.getChannel.id,
-      authorId: this.props.loggedInUser ? this.props.loggedInUser.id : undefined
+      content: this.state.newMessage
     }).then(() => {
       that.setState({
         newMessage: ''
@@ -240,15 +188,15 @@ class Messages extends React.Component {
           subscribeToMessage(mutations:[createMessage], filter: $subscriptionFilter) {
             edge {
               node {
-                id
-                content
-                createdAt
                 author {
                   id
-                  username
                   nickname
                   picture
+                  username
                 }
+                content
+                createdAt
+                id
               }
             }
           }
@@ -292,8 +240,8 @@ const MessagesWithData = compose(
           channelId,
           messageOrder: [
             {
-              field: 'createdAt',
-              direction: 'ASC'
+              direction: 'ASC',
+              field: 'createdAt'
             }
           ]
         }

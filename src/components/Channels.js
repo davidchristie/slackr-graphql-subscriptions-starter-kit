@@ -141,10 +141,23 @@ class Channels extends React.Component {
         {
           this.props.data.viewer
             ? (
-              <ul>
+              <ul
+                style={{
+                  listStyle: 'none'
+                }}
+              >
                 {
                   this.props.data.viewer.allChannels.edges.map(edge => (
-                    <li key={edge.node.id}><Link to={`/channels/${edge.node.id}`}>{edge.node.name}</Link></li>
+                    <li key={edge.node.id}>
+                      <Link
+                        style={{
+                          color: 'white'
+                        }}
+                        to={`/channels/${edge.node.id}`}
+                      >
+                        {edge.node.name}
+                      </Link>
+                    </li>
                   ))
                 }
               </ul>

@@ -3,8 +3,6 @@ import gql from 'graphql-tag'
 import React from 'react'
 import { graphql, compose } from 'react-apollo'
 
-import styles from './index.scss'
-
 const ChannelMessagesQuery = gql`
 query GetPublicChannels($channelId: ID!, $messageOrder: [MessageOrderByArgs]) {
   getChannel(id: $channelId) {
@@ -78,7 +76,6 @@ class Messages extends React.Component {
         !this.props.data.getChannel ||
         newProps.data.getChannel.id !== this.props.data.getChannel.id
       ) {
-        // If we change channels, subscribe to the new channel
         this.subscribeToNewMessages()
       }
     }
@@ -93,16 +90,50 @@ class Messages extends React.Component {
   render () {
     return this.props.data.getChannel
       ? (
-        <div className={styles.messagePage}>
-          <div className={styles.messageHeaderWrapper}>
+        <div
+          style={{
+            bottom: 0,
+            left: 0,
+            position: 'absolute',
+            right: 0,
+            top: 0
+          }}
+        >
+          <div
+            style={{
+              borderBottom: '1px solid #ddd',
+              left: 0,
+              padding: '15px',
+              position: 'absolute',
+              right: 0,
+              top: 0
+            }}
+          >
             <h3>{this.props.data.getChannel.name}</h3>
           </div>
-          <div className={styles.messageListWrapper}>
-            <ul>
+          <div
+            style={{
+              bottom: '50px',
+              left: 0,
+              overflow: 'scroll',
+              position: 'absolute',
+              right: 0,
+              top: '69px'
+            }}
+          >
+            <ul
+              style={{
+                listStyle: 'none'
+              }}
+            >
               {
                 this.props.data.getChannel.messages.edges.map((edge, i) => (
                   <li key={i}>
-                    <div className={styles.messageBlock}>
+                    <div
+                      style={{
+                        padding: '5px'
+                      }}
+                    >
                       {
                         edge.node.author && edge.node.author.picture
                           ? (
@@ -120,10 +151,19 @@ class Messages extends React.Component {
                           )
                           : null
                       }
-                      <div className={styles.messageContent}>
-                        <div className={styles.messageHeader}>
+                      <div
+                        style={{
+                          display: 'inline'
+                        }}
+                      >
+                        <div>
                           {
-                            <h6>
+                            <h6
+                              style={{
+                                display: 'inline',
+                                marginRight: '10px'
+                              }}
+                            >
                               {
                                 edge.node.author
                                   ? (
@@ -154,7 +194,14 @@ class Messages extends React.Component {
               }
             </ul>
           </div>
-          <div className={styles.messageInputWrapper}>
+          <div
+            style={{
+              bottom: '15px',
+              left: '15px',
+              position: 'absolute',
+              right: '15px'
+            }}
+          >
             <form onSubmit={this.submitMessage}>
               <div className='input-group'>
                 <input value={this.state.newMessage} onChange={this.onNewMessageChange} type='textarea' placeholder={`Message ${this.props.data.getChannel.name}`} className='form-control' />
@@ -167,6 +214,22 @@ class Messages extends React.Component {
         </div>
       )
       : <h5>Loading...</h5>
+  }
+
+  submitMessage (event) {
+    if (event) {
+      event.preventDefault()
+    }
+    const that = this
+    this.props.createMessage({
+      content: this.state.newMessage,
+      channelId: this.props.data.getChannel.id,
+      authorId: this.props.loggedInUser ? this.props.loggedInUser.id : undefined
+    }).then(() => {
+      that.setState({
+        newMessage: ''
+      })
+    })
   }
 
   subscribeToNewMessages () {
@@ -210,22 +273,6 @@ class Messages extends React.Component {
           }
         }
       }
-    })
-  }
-
-  submitMessage (event) {
-    if (event) {
-      event.preventDefault()
-    }
-    const that = this
-    this.props.createMessage({
-      content: this.state.newMessage,
-      channelId: this.props.data.getChannel.id,
-      authorId: this.props.loggedInUser ? this.props.loggedInUser.id : undefined
-    }).then(() => {
-      that.setState({
-        newMessage: ''
-      })
     })
   }
 

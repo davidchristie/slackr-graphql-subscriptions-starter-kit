@@ -1,4 +1,7 @@
 # slackr-graphql-subscriptions-starter-kit
+
+[![JavaScript Style Guide](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+
 A realtime react starter kit powered by GraphQL Subscriptions. The app is designed in the likeness of slack and features real-time messaging and social authentication out of the box.
 
 This starter kit is powered by the GraphQL backend-as-a-service [scaphold.io](https://scaphold.io).

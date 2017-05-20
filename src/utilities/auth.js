@@ -1,61 +1,53 @@
-/* ===== ./src/utils/AuthService.js ===== */
 import Auth0Lock from 'auth0-lock'
-import EventEmitter from 'events';
+import EventEmitter from 'events'
 
 export default class AuthService extends EventEmitter {
-  constructor(clientId, domain) {
-    super();
-    // Configure Auth0
+
+  constructor (clientId, domain) {
+    super()
     this.lock = new Auth0Lock(clientId, domain, {})
-    // Add callback for lock `authenticated` event
-    this.lock.on('authenticated', this._doAuthentication.bind(this))
-    // binds login functions to keep this context
+    this.lock.on('authenticated', this.doAuthentication.bind(this))
     this.login = this.login.bind(this)
   }
 
-  _doAuthentication(tokenPaylod){
-    this.lock.getUserInfo(tokenPaylod.accessToken, (error, profile) => {
+  doAuthentication (tokenPayload) {
+    this.lock.getUserInfo(tokenPayload.accessToken, (error, profile) => {
       if (error) {
-        this.emit('error', error);
-        return;
+        this.emit('error', error)
+        return
       }
-      this.setProfile(profile);
-      this.emit('authenticated', profile, tokenPaylod);
-    });
-
-    // Saves the user token
-    this.setToken(tokenPaylod.idToken)
+      this.setProfile(profile)
+      this.emit('authenticated', profile, tokenPayload)
+    })
+    this.setToken(tokenPayload.idToken)
   }
 
-  login() {
-    // Call the show method to display the widget.
-    this.lock.show()
+  getProfile () {
+    return JSON.parse(window.localStorage.getItem('user_profile'))
   }
 
-  logout() {
-    localStorage.clear();
+  getToken () {
+    return window.localStorage.getItem('scaphold_user_token')
   }
 
-  setProfile(profile) {
-    localStorage.setItem('user_profile', JSON.stringify(profile));
-  }
-
-  getProfile() {
-    return JSON.parse(localStorage.getItem('user_profile'));
-  }
-
-  loggedIn(){
-    // Checks if there is a saved token and it's still valid
+  loggedIn () {
     return !!this.getToken()
   }
 
-  setToken(idToken){
-    // Saves user token to localStorage
-    localStorage.setItem('scaphold_user_token', idToken)
+  login () {
+    this.lock.show()
   }
 
-  getToken(){
-    // Retrieves the user token from localStorage
-    return localStorage.getItem('scaphold_user_token')
+  logout () {
+    window.localStorage.clear()
   }
+
+  setProfile (profile) {
+    window.localStorage.setItem('user_profile', JSON.stringify(profile))
+  }
+
+  setToken (idToken) {
+    window.localStorage.setItem('scaphold_user_token', idToken)
+  }
+
 }

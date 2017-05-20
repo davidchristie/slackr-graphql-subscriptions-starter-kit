@@ -1,20 +1,5 @@
 {
-  "name": "slackr-graphql-subscriptions-starter-kit",
-  "version": "0.0.1",
-  "description": "A realtime React starter kit powered by GraphQL Subscriptions. The app is a slack clone and features real-time messaging and social authentication.",
-  "main": "''",
-  "scripts": {
-    "build": "webpack --config webpack.production.config.js --progress --profile --colors",
-    "start": "webpack-dev-server --progress --profile --colors",
-    "lint": "eslint --ext js --ext jsx src || exit 0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scaphold-io/slackr-graphql-subscriptions-starter-kit"
-  },
   "author": "Michael Paris",
-  "license": "MIT",
-  "homepage": "https://scaphold.io",
   "dependencies": {
     "apollo-client": "^0.10.1",
     "auth0-lock": "^10.9.1",
@@ -31,6 +16,7 @@
     "sass-loader": "^4.0.2",
     "subscriptions-transport-ws": "^0.5.5-alpha.0"
   },
+  "description": "A realtime React starter kit powered by GraphQL Subscriptions. The app is a slack clone and features real-time messaging and social authentication.",
   "devDependencies": {
     "babel-core": "6.17.0",
     "babel-loader": "6.2.7",
@@ -52,5 +38,18 @@
     "webpack": "1.13.2",
     "webpack-cleanup-plugin": "^0.4.1",
     "webpack-dev-server": "1.16.2"
-  }
+  },
+  "homepage": "https://scaphold.io",
+  "license": "MIT",
+  "name": "slackr-graphql-subscriptions-starter-kit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scaphold-io/slackr-graphql-subscriptions-starter-kit"
+  },
+  "scripts": {
+    "build": "webpack --config webpack.production.config.js --progress --profile --colors",
+    "start": "webpack-dev-server --progress --profile --colors",
+    "lint": "eslint --ext js --ext jsx src || exit 0"
+  },
+  "version": "0.0.1"
 }

@@ -143,7 +143,10 @@ class Channels extends React.Component {
             ? (
               <ul
                 style={{
-                  listStyle: 'none'
+                  backgroundColor: 'rgba(255,255,255,0.5)',
+                  height: '60vh',
+                  listStyle: 'none',
+                  overflowY: 'scroll'
                 }}
               >
                 {

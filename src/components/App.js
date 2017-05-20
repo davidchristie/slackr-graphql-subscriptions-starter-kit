@@ -1,27 +1,14 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 import React from 'react'
 
-import Channels from './Channels'
+import Sidebar from './Sidebar'
 
 export default class App extends React.Component {
 
   render () {
     return (
       <div>
-        <div
-          style={{
-            backgroundColor: 'rgb(60, 42, 59)',
-            bottom: 0,
-            color: 'white',
-            left: 0,
-            padding: '15px',
-            position: 'fixed',
-            top: 0,
-            width: '300px'
-          }}
-        >
-          <Channels />
-        </div>
+        <Sidebar />
         <div
           style={{
             backgroundColor: 'white',

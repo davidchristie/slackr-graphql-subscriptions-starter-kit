@@ -217,8 +217,11 @@ class Messages extends React.Component {
           subscriptionData.data.subscribeToMessage.edge
         ]
         return {
+          ...prev,
           getChannel: {
+            ...prev.getChannel,
             messages: {
+              ...prev.getChannel.messages,
               edges: newEdges
             }
           }

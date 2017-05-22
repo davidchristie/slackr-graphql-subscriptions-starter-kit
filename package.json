@@ -5,6 +5,7 @@
     "auth0-lock": "^10.16.0",
     "bootstrap": "^4.0.0-alpha.6",
     "graphql-tag": "^2.1.0",
+    "prop-types": "^15.5.10",
     "react": "^15.5.4",
     "react-apollo": "^1.2.0",
     "react-dom": "^15.5.4",

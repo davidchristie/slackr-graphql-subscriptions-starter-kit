@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Channels from './Channels'
+import ChannelList from './ChannelList'
 
 export default class Sidebar extends React.Component {
 
@@ -18,7 +18,7 @@ export default class Sidebar extends React.Component {
           width: '300px'
         }}
       >
-        <Channels />
+        <ChannelList />
       </div>
     )
   }

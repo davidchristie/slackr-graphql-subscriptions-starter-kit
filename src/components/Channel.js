@@ -3,9 +3,26 @@ import gql from 'graphql-tag'
 import React from 'react'
 import { compose, graphql } from 'react-apollo'
 
-import Message from './Message'
+import MessageList from './MessageList'
 
-const ChannelMessagesQuery = gql`
+const CREATE_MESSAGE_MUTATION = gql`
+mutation CreateMessage($message: CreateMessageInput!) {
+  createMessage(input: $message) {
+    changedMessage {
+      id
+      content
+      author {
+        id
+        nickname
+        picture
+        username
+      }
+    }
+  }
+}
+`
+
+const GET_PUBLIC_CHANNELS_QUERY = gql`
 query GetPublicChannels($channelId: ID!, $messageOrder: [MessageOrderByArgs]) {
   getChannel(id: $channelId) {
     id
@@ -14,9 +31,9 @@ query GetPublicChannels($channelId: ID!, $messageOrder: [MessageOrderByArgs]) {
         node {
           author {
             id
-            username
             nickname
             picture
+            username
           }
           content
           createdAt
@@ -29,24 +46,7 @@ query GetPublicChannels($channelId: ID!, $messageOrder: [MessageOrderByArgs]) {
 }
 `
 
-const CreateMessageQuery = gql`
-mutation CreateMessage($message: CreateMessageInput!) {
-  createMessage(input: $message) {
-    changedMessage {
-      id
-      content
-      author {
-        id
-        username
-        nickname
-        picture
-      }
-    }
-  }
-}
-`
-
-const LoggedInUserQuery = gql`
+const LOGGED_IN_USER_QUERY = gql`
 query LoggedInUser {
   viewer {
     user {
@@ -58,7 +58,27 @@ query LoggedInUser {
 }
 `
 
-class Messages extends React.Component {
+const NEW_MESSAGES_SUBSCRIPTION = gql`
+  subscription NewMessages($subscriptionFilter:MessageSubscriptionFilter) {
+    subscribeToMessage(mutations:[createMessage], filter: $subscriptionFilter) {
+      edge {
+        node {
+          author {
+            id
+            nickname
+            picture
+            username
+          }
+          content
+          createdAt
+          id
+        }
+      }
+    }
+  }
+`
+
+class Channel extends React.Component {
 
   constructor (props) {
     super(props)
@@ -80,6 +100,12 @@ class Messages extends React.Component {
       ) {
         this.subscribeToNewMessages()
       }
+    }
+  }
+
+  componentWillUnmount () {
+    if (this.subscription) {
+      this.subscription.unsubscribe()
     }
   }
 
@@ -113,28 +139,11 @@ class Messages extends React.Component {
           >
             <h3>{this.props.data.getChannel.name}</h3>
           </div>
-          <div
-            style={{
-              bottom: '50px',
-              left: 0,
-              overflowY: 'scroll',
-              position: 'absolute',
-              right: 0,
-              top: '69px'
-            }}
-          >
-            <ul
-              style={{
-                listStyle: 'none'
-              }}
-            >
-              {
-                this.props.data.getChannel.messages.edges.map(
-                  (edge, index) => <Message key={index} {...edge.node} />
-                )
-              }
-            </ul>
-          </div>
+          <MessageList
+            messages={this.props.data.getChannel.messages.edges.map(
+              edge => edge.node
+            )}
+          />
           <div
             style={{
               bottom: '15px',
@@ -183,25 +192,7 @@ class Messages extends React.Component {
 
   subscribeToNewMessages () {
     this.subscription = this.props.data.subscribeToMore({
-      document: gql`
-        subscription newMessages($subscriptionFilter:MessageSubscriptionFilter) {
-          subscribeToMessage(mutations:[createMessage], filter: $subscriptionFilter) {
-            edge {
-              node {
-                author {
-                  id
-                  nickname
-                  picture
-                  username
-                }
-                content
-                createdAt
-                id
-              }
-            }
-          }
-        }
-      `,
+      document: NEW_MESSAGES_SUBSCRIPTION,
       variables: {
         subscriptionFilter: {
           channelId: {
@@ -211,17 +202,17 @@ class Messages extends React.Component {
           }
         }
       },
-      updateQuery: (prev, { subscriptionData }) => {
+      updateQuery: (previous, { subscriptionData }) => {
         const newEdges = [
-          ...prev.getChannel.messages.edges,
+          ...previous.getChannel.messages.edges,
           subscriptionData.data.subscribeToMessage.edge
         ]
         return {
-          ...prev,
+          ...previous,
           getChannel: {
-            ...prev.getChannel,
+            ...previous.getChannel,
             messages: {
-              ...prev.getChannel.messages,
+              ...previous.getChannel.messages,
               edges: newEdges
             }
           }
@@ -232,9 +223,9 @@ class Messages extends React.Component {
 
 }
 
-const MessagesWithData = compose(
-  graphql(ChannelMessagesQuery, {
-    options: (props) => {
+const withData = compose(
+  graphql(GET_PUBLIC_CHANNELS_QUERY, {
+    options: props => {
       const channelId = props.match.params
         ? props.match.params.channelId
         : null
@@ -251,16 +242,16 @@ const MessagesWithData = compose(
       }
     }
   }),
-  graphql(LoggedInUserQuery, {
+  graphql(LOGGED_IN_USER_QUERY, {
     props: ({ data }) => ({
       loggedInUser: data.viewer ? data.viewer.user : null
     })
   }),
-  graphql(CreateMessageQuery, {
+  graphql(CREATE_MESSAGE_MUTATION, {
     props: ({ mutate }) => ({
       createMessage: message => mutate({variables: {message}})
     })
   })
-)(Messages)
+)
 
-export default MessagesWithData
+export default withData(Channel)

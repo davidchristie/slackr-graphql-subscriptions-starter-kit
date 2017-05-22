@@ -12,8 +12,8 @@ export default class App extends React.Component {
         <div
           style={{
             backgroundColor: 'white',
-            left: '300px',
             bottom: 0,
+            left: '300px',
             padding: '15px',
             position: 'fixed',
             right: 0,

@@ -1,6 +1,7 @@
+import PropTypes from 'prop-types'
 import React from 'react'
 
-export default class Message extends React.Component {
+class Message extends React.Component {
 
   render () {
     return (
@@ -71,3 +72,14 @@ export default class Message extends React.Component {
   }
 
 }
+
+Message.propTypes = {
+  author: PropTypes.shape({
+    nickname: PropTypes.string,
+    username: PropTypes.string
+  }),
+  content: PropTypes.string.isRequired,
+  createdAt: PropTypes.string.isRequired
+}
+
+export default Message

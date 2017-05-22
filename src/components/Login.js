@@ -3,26 +3,26 @@ import gql from 'graphql-tag'
 import React from 'react'
 import { compose, graphql } from 'react-apollo'
 
-const CreateUserQuery = gql`
-mutation CreateUser($user: CreateUserInput!) {
-  createUser(input: $user) {
+const CREATE_USER_MUTATION = gql`
+mutation CreateUser($input: CreateUserInput!) {
+  createUser(input: $input) {
+    token
     user {
       id
       username
     }
-    token
   }
 }
 `
 
-const LoginQuery = gql`
-mutation Login($cred: LoginUserInput!) {
-  loginUser(input: $cred) {
+const LOGIN_MUTATION = gql`
+mutation Login($input: LoginUserInput!) {
+  loginUser(input: $input) {
+    token
     user {
       id
       username
     }
-    token
   }
 }
 `
@@ -32,7 +32,7 @@ class Login extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
-      cred: {
+      input: {
         password: '',
         username: ''
       }
@@ -41,17 +41,17 @@ class Login extends React.Component {
 
   onPasswordChanged (event) {
     this.setState({
-      cred: {
+      input: {
         password: event.target.value,
-        username: this.state.cred.username
+        username: this.state.input.username
       }
     })
   }
 
   onUsernameChanged (event) {
     this.setState({
-      cred: {
-        password: this.state.cred.password,
+      input: {
+        password: this.state.input.password,
         username: event.target.value
       }
     })
@@ -81,15 +81,17 @@ class Login extends React.Component {
 
 }
 
-export default compose(
-  graphql(CreateUserQuery, {
+const withData = compose(
+  graphql(CREATE_USER_MUTATION, {
     props: ({ mutate }) => ({
       createUser: user => mutate({variables: {user}})
     })
   }),
-  graphql(LoginQuery, {
+  graphql(LOGIN_MUTATION, {
     props: ({ mutate }) => ({
-      login: cred => mutate({variables: {cred}})
+      login: input => mutate({variables: {input}})
     })
   })
-)(Login)
+)
+
+export default withData(Login)

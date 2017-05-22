@@ -3,7 +3,7 @@ import gql from 'graphql-tag'
 import React from 'react'
 import { graphql } from 'react-apollo'
 
-const CreateChannelQuery = gql`
+const CREATE_CHANNEL_QUERY = gql`
 mutation CreateChannel($channel: CreateChannelInput!) {
   createChannel(input: $channel) {
     changedChannel {
@@ -31,16 +31,16 @@ class CreateChannel extends React.Component {
   }
 
   createChannel () {
-    const that = this
-    this.props.createChannel(this.state.channel).then(({ data: { createChannel: { changedChannel } } }) => {
-      that.setState({
-        channel: {
-          name: '',
-          isPublic: false
-        }
+    this.props.createChannel(this.state.channel)
+      .then(({ data: { createChannel: { changedChannel } } }) => {
+        this.setState({
+          channel: {
+            isPublic: false,
+            name: ''
+          }
+        })
+        this.props.history.push(`/channels/${changedChannel.id}`)
       })
-      this.context.history.push(`/channels/${changedChannel.id}`)
-    })
   }
 
   onChannelNameChange (event) {
@@ -80,8 +80,10 @@ class CreateChannel extends React.Component {
   }
 }
 
-export default graphql(CreateChannelQuery, {
+const withData = graphql(CREATE_CHANNEL_QUERY, {
   props: ({ mutate }) => ({
     createChannel: channel => mutate({variables: {channel}})
   })
-})(CreateChannel)
+})
+
+export default withData(CreateChannel)

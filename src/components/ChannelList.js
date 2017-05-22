@@ -7,7 +7,23 @@ import { Link } from 'react-router-dom'
 import config from '../config'
 import AuthService from '../utilities/auth'
 
-const LoginQuery = gql`
+const GET_PUBLIC_CHANNELS_QUERY = gql`
+query GetPublicChannels($where: ChannelWhereArgs, $orderBy: [ChannelOrderByArgs]) {
+  viewer {
+    allChannels(where: $where, orderBy: $orderBy) {
+      edges {
+        node {
+          id
+          isPublic
+          name
+        }
+      }
+    }
+  }
+}
+`
+
+const LOGIN_MUTATION = gql`
 mutation Login($credential: LoginUserWithAuth0Input!) {
   loginUserWithAuth0(input: $credential) {
     user {
@@ -18,61 +34,48 @@ mutation Login($credential: LoginUserWithAuth0Input!) {
 }
 `
 
-const PublicChannelsQuery = gql`
-query GetPublicChannels($wherePublic: ChannelWhereArgs, $orderBy: [ChannelOrderByArgs]) {
-  viewer {
-    allChannels(where: $wherePublic, orderBy: $orderBy) {
-      edges {
+const NEW_CHANNELS_SUBSCRIPTION = gql`
+  subscription NewChannels($subscriptionFilter:ChannelSubscriptionFilter) {
+    subscribeToChannel(mutations:[createChannel], filter: $subscriptionFilter) {
+      edge {
         node {
+          createdAt
           id
-          name
           isPublic
+          name
         }
       }
     }
   }
-}
 `
 
-const UpdateUserQuery = gql`
+const UPDATE_USER_MUTATION = gql`
 mutation UpdateUser($user: UpdateUserInput!) {
   updateUser(input: $user) {
     changedUser {
       id
-      username
       picture
+      username
     }
   }
 }
 `
 
-class Channels extends React.Component {
+class ChannelList extends React.Component {
 
   constructor (props) {
     super(props)
+    this.auth = new AuthService(config.auth0ClientId, config.auth0Domain)
+    this.logout = this.logout.bind(this)
     this.onAuthenticated = this.onAuthenticated.bind(this)
     this.startLogin = this.startLogin.bind(this)
-    this.logout = this.logout.bind(this)
-    this.auth = new AuthService(config.auth0ClientId, config.auth0Domain)
     this.auth.on('authenticated', this.onAuthenticated)
     this.auth.on('error', console.log)
   }
 
   componentDidMount () {
     this.subscription = this.props.data.subscribeToMore({
-      document: gql`
-        subscription newChannels($subscriptionFilter:ChannelSubscriptionFilter) {
-          subscribeToChannel(mutations:[createChannel], filter: $subscriptionFilter) {
-            edge {
-              node {
-                id
-                name
-                createdAt
-              }
-            }
-          }
-        }
-      `,
+      document: NEW_CHANNELS_SUBSCRIPTION,
       variables: {
         subscriptionFilter: {
           isPublic: {
@@ -80,14 +83,23 @@ class Channels extends React.Component {
           }
         }
       },
-      updateQuery: (prev, { subscriptionData }) => {
+      updateQuery: (previous, { subscriptionData }) => {
+        const newEdges = [
+          ...previous.viewer.allChannels.edges,
+          subscriptionData.data.subscribeToChannel.edge
+        ]
+        newEdges.sort((a, b) => {
+          if (a.node.name < b.node.name) return -1
+          else if (a.node.name > b.node.name) return 1
+          else return 0
+        })
         return {
+          ...previous,
           viewer: {
+            ...previous.viewer,
             allChannels: {
-              edges: [
-                ...prev.viewer.allChannels.edges,
-                subscriptionData.data.subscribeToChannel.edge
-              ]
+              ...previous.viewer.allChannels,
+              edges: newEdges
             }
           }
         }
@@ -236,12 +248,12 @@ class Channels extends React.Component {
 
 }
 
-const ChannelsWithData = compose(
-  graphql(PublicChannelsQuery, {
+const withData = compose(
+  graphql(GET_PUBLIC_CHANNELS_QUERY, {
     options: (props) => {
       return {
         variables: {
-          wherePublic: {
+          where: {
             isPublic: {
               eq: true
             }
@@ -256,16 +268,16 @@ const ChannelsWithData = compose(
       }
     }
   }),
-  graphql(LoginQuery, {
+  graphql(LOGIN_MUTATION, {
     props: ({ mutate }) => ({
       loginUser: (credential) => mutate({variables: {credential}})
     })
   }),
-  graphql(UpdateUserQuery, {
+  graphql(UPDATE_USER_MUTATION, {
     props: ({ mutate }) => ({
       updateUser: (user) => mutate({variables: {user}})
     })
   })
-)(Channels)
+)
 
-export default ChannelsWithData
+export default withData(ChannelList)

@@ -6,8 +6,8 @@ export default class Authentication extends EventEmitter {
   constructor (clientId, domain) {
     super()
     this.lock = new Auth0Lock(clientId, domain, {})
-    this.lock.on('authenticated', this.authenticate.bind(this))
     this.login = this.login.bind(this)
+    this.lock.on('authenticated', this.authenticate.bind(this))
   }
 
   authenticate (tokenPayload) {

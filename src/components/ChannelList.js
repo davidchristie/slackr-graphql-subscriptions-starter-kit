@@ -3,9 +3,6 @@ import React from 'react'
 import { compose, graphql } from 'react-apollo'
 import { Link } from 'react-router-dom'
 
-import configuration from '../configuration'
-import Authentication from '../utilities/Authentication'
-
 const GET_PUBLIC_CHANNELS_QUERY = gql`
 query GetPublicChannels($where: ChannelWhereArgs, $orderBy: [ChannelOrderByArgs]) {
   viewer {
@@ -17,17 +14,6 @@ query GetPublicChannels($where: ChannelWhereArgs, $orderBy: [ChannelOrderByArgs]
           name
         }
       }
-    }
-  }
-}
-`
-
-const LOGIN_MUTATION = gql`
-mutation Login($credential: LoginUserWithAuth0Input!) {
-  loginUserWithAuth0(input: $credential) {
-    user {
-      id
-      username
     }
   }
 }
@@ -48,29 +34,7 @@ const NEW_CHANNELS_SUBSCRIPTION = gql`
   }
 `
 
-const UPDATE_USER_MUTATION = gql`
-mutation UpdateUser($user: UpdateUserInput!) {
-  updateUser(input: $user) {
-    changedUser {
-      id
-      picture
-      username
-    }
-  }
-}
-`
-
 class ChannelList extends React.Component {
-
-  constructor (props) {
-    super(props)
-    this.authentication = new Authentication(configuration.auth0ClientId, configuration.auth0Domain)
-    this.logout = this.logout.bind(this)
-    this.onAuthenticated = this.onAuthenticated.bind(this)
-    this.startLogin = this.startLogin.bind(this)
-    this.authentication.on('authenticated', this.onAuthenticated)
-    this.authentication.on('error', console.log)
-  }
 
   componentDidMount () {
     this.subscription = this.props.data.subscribeToMore({
@@ -112,31 +76,7 @@ class ChannelList extends React.Component {
     }
   }
 
-  logout () {
-    this.authentication.logout()
-    this.setState({})
-  }
-
-  onAuthenticated (auth0Profile, tokenPayload) {
-    const that = this
-    this.props.loginUser({
-      idToken: tokenPayload.idToken
-    }).then(res => {
-      const scapholdUserId = res.data.loginUserWithAuth0.user.id
-      const profilePicture = auth0Profile.picture
-      const nickname = auth0Profile.nickname
-      return that.props.updateUser({
-        id: scapholdUserId,
-        picture: profilePicture,
-        nickname: nickname
-      })
-    }).catch(err => {
-      console.log(`Error updating user: ${err.message}`)
-    })
-  }
-
   render () {
-    const profile = this.authentication.getProfile()
     return (
       <div>
         <h3>
@@ -146,8 +86,8 @@ class ChannelList extends React.Component {
               alt=''
               src='https://scaphold.io/5d9897e87a7c597b0589f95cde19ad9d.png'
               style={{
-                height: '30px',
                 float: 'right',
+                height: '30px',
                 width: '30px'
               }}
               target='_blank'
@@ -183,66 +123,8 @@ class ChannelList extends React.Component {
             )
             : null
         }
-        <Link
-          style={{
-            color: 'white'
-          }}
-          to='/createChannel'
-        >
-          Create channel
-        </Link>
-        {
-          !this.authentication.loggedIn()
-            ? (
-              <div style={{position: 'absolute', bottom: 0, left: 0, right: 0, padding: '15px', textAlign: 'center'}}>
-                <button
-                  className='btn btn-primary'
-                  onClick={this.startLogin}
-                  type='button'
-                >
-                  Login
-                </button>
-              </div>
-            )
-            : (
-              <div style={{position: 'absolute', bottom: 0, left: 0, right: 0, padding: '15px', textAlign: 'center'}}>
-                <div style={{ marginBottom: '5px' }}>
-                  {profile ? profile.nickname : ''}
-                </div>
-                {
-                  profile
-                    ? (
-                      <div>
-                        <img
-                          alt=''
-                          src={profile.picture}
-                          style={{
-                            borderRadius: '20px',
-                            height: '40px',
-                            marginBottom: '5px',
-                            width: '40px'
-                          }}
-                        />
-                      </div>
-                    )
-                    : null
-                }
-                <button
-                  className='btn btn-secondary'
-                  onClick={this.logout}
-                  type='button'
-                >
-                  Logout
-                </button>
-              </div>
-            )
-        }
       </div>
     )
-  }
-
-  startLogin () {
-    this.authentication.login()
   }
 
 }
@@ -266,16 +148,6 @@ const withData = compose(
         }
       }
     }
-  }),
-  graphql(LOGIN_MUTATION, {
-    props: ({ mutate }) => ({
-      loginUser: (credential) => mutate({variables: {credential}})
-    })
-  }),
-  graphql(UPDATE_USER_MUTATION, {
-    props: ({ mutate }) => ({
-      updateUser: (user) => mutate({variables: {user}})
-    })
   })
 )
 

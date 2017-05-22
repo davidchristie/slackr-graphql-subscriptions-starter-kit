@@ -1,16 +1,16 @@
 import Auth0Lock from 'auth0-lock'
 import EventEmitter from 'events'
 
-export default class AuthService extends EventEmitter {
+export default class Authentication extends EventEmitter {
 
   constructor (clientId, domain) {
     super()
     this.lock = new Auth0Lock(clientId, domain, {})
-    this.lock.on('authenticated', this.doAuthentication.bind(this))
+    this.lock.on('authenticated', this.authenticate.bind(this))
     this.login = this.login.bind(this)
   }
 
-  doAuthentication (tokenPayload) {
+  authenticate (tokenPayload) {
     this.lock.getUserInfo(tokenPayload.accessToken, (error, profile) => {
       if (error) {
         this.emit('error', error)

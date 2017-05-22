@@ -1,4 +1,3 @@
-import 'bootstrap/dist/css/bootstrap.min.css'
 import React from 'react'
 
 import Sidebar from './Sidebar'
@@ -20,11 +19,7 @@ export default class App extends React.Component {
             top: 0
           }}
         >
-          {
-            this.props.children
-              ? React.Children.toArray(this.props.children)
-              : <h3>Select a channel</h3>
-          }
+          {this.props.children}
         </div>
       </div>
     )

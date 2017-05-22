@@ -1,4 +1,3 @@
-import 'bootstrap/dist/css/bootstrap.min.css'
 import gql from 'graphql-tag'
 import React from 'react'
 import { graphql } from 'react-apollo'

@@ -1,11 +1,10 @@
-import 'bootstrap/dist/css/bootstrap.min.css'
 import gql from 'graphql-tag'
 import React from 'react'
 import { compose, graphql } from 'react-apollo'
 import { Link } from 'react-router-dom'
 
-import config from '../config'
-import AuthService from '../utilities/auth'
+import configuration from '../configuration'
+import Authentication from '../utilities/Authentication'
 
 const GET_PUBLIC_CHANNELS_QUERY = gql`
 query GetPublicChannels($where: ChannelWhereArgs, $orderBy: [ChannelOrderByArgs]) {
@@ -65,12 +64,12 @@ class ChannelList extends React.Component {
 
   constructor (props) {
     super(props)
-    this.auth = new AuthService(config.auth0ClientId, config.auth0Domain)
+    this.authentication = new Authentication(configuration.auth0ClientId, configuration.auth0Domain)
     this.logout = this.logout.bind(this)
     this.onAuthenticated = this.onAuthenticated.bind(this)
     this.startLogin = this.startLogin.bind(this)
-    this.auth.on('authenticated', this.onAuthenticated)
-    this.auth.on('error', console.log)
+    this.authentication.on('authenticated', this.onAuthenticated)
+    this.authentication.on('error', console.log)
   }
 
   componentDidMount () {
@@ -114,7 +113,7 @@ class ChannelList extends React.Component {
   }
 
   logout () {
-    this.auth.logout()
+    this.authentication.logout()
     this.setState({})
   }
 
@@ -137,7 +136,7 @@ class ChannelList extends React.Component {
   }
 
   render () {
-    const profile = this.auth.getProfile()
+    const profile = this.authentication.getProfile()
     return (
       <div>
         <h3>
@@ -193,7 +192,7 @@ class ChannelList extends React.Component {
           Create channel
         </Link>
         {
-          !this.auth.loggedIn()
+          !this.authentication.loggedIn()
             ? (
               <div style={{position: 'absolute', bottom: 0, left: 0, right: 0, padding: '15px', textAlign: 'center'}}>
                 <button
@@ -243,7 +242,7 @@ class ChannelList extends React.Component {
   }
 
   startLogin () {
-    this.auth.login()
+    this.authentication.login()
   }
 
 }

@@ -1,26 +1,28 @@
+import 'bootstrap/dist/css/bootstrap.min.css'
 import React from 'react'
 import { ApolloProvider } from 'react-apollo'
 import { render } from 'react-dom'
-import { Route, BrowserRouter as Router } from 'react-router-dom'
+import { BrowserRouter, Route } from 'react-router-dom'
 
 import Channel from './components/Channel'
 import CreateChannel from './components/CreateChannel'
 import Layout from './components/Layout'
 import Login from './components/Login'
-import config from './config'
-import makeApolloClient from './utilities/makeApolloClient'
+import configuration from './configuration'
+import createApolloClient from './utilities/createApolloClient'
 
-const client = makeApolloClient(config.scapholdUrl)
+const client = createApolloClient(configuration.scapholdUrl)
 
 const root = (
   <ApolloProvider client={client}>
-    <Router>
+    <BrowserRouter>
       <Layout>
+        <Route exact path='/' render={props => <h3>Select a channel</h3>} />
         <Route component={CreateChannel} path='/createChannel' />
         <Route component={Channel} path='/channels/:channelId' />
         <Route component={Login} path='/login' />
       </Layout>
-    </Router>
+    </BrowserRouter>
   </ApolloProvider>
 )
 
